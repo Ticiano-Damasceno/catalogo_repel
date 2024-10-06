@@ -18,14 +18,15 @@ class db():
         self.__engine = sqla.create_engine(conexao_db, echo = True)
         self.__conn = self.__engine.connect()
 
-    def inserir(self, descricao:str, referencia:str, aplicacao:str, codigo_fornecedor:str, valor_venda:float, observacao:str):
-        self.__conn.execute(sqla.sql.text(""" 
+    def inserir(self, descricao:str, referencia:str, aplicacao:str, codigo_fornecedor:str, quantidade:str, valor_venda:float, observacao:str):
+        query = sqla.sql.text(""" 
             INSERT INTO tbl_produto 
             (
                 descricao,
                 referencia,
                 aplicacao,
                 codigo_fornecedor,
+                quantidade,
                 valor_venda,
                 observacao
             )
@@ -34,18 +35,24 @@ class db():
                 :referencia,
                 :aplicacao,
                 :codigo_fornecedor,
+                :quantidade,
                 :valor_venda,
                 :observacao
             )
-        """), {
-            "descricao": descricao,
-            "referencia": referencia,
-            "aplicacao": aplicacao,
-            "codigo_fornecedor": codigo_fornecedor,
-            "valor_venda": valor_venda,
-            "observacao": observacao
-        })
-        self.__conn.commit()
+        """)
+        try:
+            self.__conn.execute(query, {
+                "descricao": descricao,
+                "referencia": referencia,
+                "aplicacao": aplicacao,
+                "codigo_fornecedor": codigo_fornecedor,
+                "quantidade": quantidade,
+                "valor_venda": valor_venda,
+                "observacao": observacao
+            })
+            self.__conn.commit()
+        except:
+            self.__conn.rollback()
 
     def consulta_unico(self, id:int):
         result = self.__conn.execute(sqla.sql.text("""
@@ -62,7 +69,7 @@ class db():
         else:
             return [e for e in result]
 
-    def alterar(self, id:int, descricao:str, referencia:str, aplicacao:str, codigo_fornecedor:str, valor_venda:float, observacao:str):
+    def alterar(self, id:int, descricao:str, referencia:str, aplicacao:str, codigo_fornecedor:str, quantidade:int, valor_venda:float, observacao:str):
         query = sqla.sql.text("""
             UPDATE tbl_produto 
             SET
@@ -70,29 +77,37 @@ class db():
                 referencia = :referencia,
                 aplicacao = :aplicacao,
                 codigo_fornecedor = :codigo_fornecedor,
+                quantidade = :quantidade,
                 valor_venda = :valor_venda,
                 observacao = :observacao
             WHERE
                 id = :id
         """)
-        self.__conn.execute(query, {
-            "id": id,
-            "descricao": descricao,
-            "referencia": referencia,
-            "aplicacao": aplicacao,
-            "codigo_fornecedor": codigo_fornecedor,
-            "valor_venda": valor_venda,
-            "observacao": observacao
-        })
-        self.__conn.commit()
+        try:
+            self.__conn.execute(query, {
+                "id": id,
+                "descricao": descricao,
+                "referencia": referencia,
+                "aplicacao": aplicacao,
+                "codigo_fornecedor": codigo_fornecedor,
+                "quantidade": quantidade,
+                "valor_venda": valor_venda,
+                "observacao": observacao
+            })
+            self.__conn.commit()
+        except:
+            self.__conn.rollback()
 
     def excluir(self, id:int):
         query = sqla.sql.text(""" 
             DELETE FROM tbl_produto
             WHERE id = :id
         """)
-        self.__conn.execute(query, {'id': id})
-        self.__conn.commit()
+        try:
+            self.__conn.execute(query, {'id': id})
+            self.__conn.commit()
+        except:
+            self.__conn.rollback()
 
 #listando os índices de uma tupla => ()
 #print([list(enumerate(e)) for e in cursor.execute("select * from tbl_pessoal")])

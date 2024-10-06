@@ -22,6 +22,7 @@ def add():
             request.form['referencia'],
             request.form['aplicacao'],
             request.form['codigo_fornecedor'],
+            request.form['quantidade'],
             request.form['valor_venda'],
             request.form['observacao']            
         )
@@ -45,10 +46,11 @@ def alterar(id):
             request.form['referencia'],
             request.form['aplicacao'],
             request.form['codigo_fornecedor'],
+            request.form['quantidade'],
             request.form['valor_venda'],
             request.form['observacao']
         )
         return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
